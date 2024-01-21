@@ -13,10 +13,16 @@ namespace Capybara_Language
         Equals,
         OpenParenthesis,
         CloseParenthesis,
-        Let,
         BinaryOperator,
+
+        // Keywords
+        Let,
+
+        // Literals
         Identifier,
-        Number
+        Number,
+
+        EOF // End of file
     }
 
     public struct Token
@@ -87,18 +93,12 @@ namespace Capybara_Language
                 }
             }
 
+            Tokens.Add(new Token("EOF", TokenType.EOF));
             return Tokens;
         }
 
-        private static bool IsSkippable(string source)
-        {
-            return (source[0] == ' ' || source[0] == '\t' || source[0] == '\n');
-        }
-
-        private static bool IsNumber(string source)
-        {
-            return int.TryParse(source[0].ToString(), out _);
-        }
+        private static bool IsSkippable(string source) => new[] {'\n', '\t', ' '}.Contains(source[0]);
+        private static bool IsNumber(string source) => int.TryParse(source[0].ToString(), out int _);
 
         private Token HandleMultiCharNumber(List<string> sourceCode)
         {
