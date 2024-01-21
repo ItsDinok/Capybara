@@ -9,16 +9,16 @@ namespace Capybara_Language
 {
     public class Parser
     {
-        private Token[] ?Tokens;
+        private List<Token> Tokens = [];
 
-        public Program ProduceAST(string sourceCode)
+        public ProgramStatements ProduceAST(string sourceCode)
         {
             Lexer lexer = new();
             Tokens = [.. lexer.Tokenise(sourceCode)];
 
-            Program program = new();
+            ProgramStatements program = new();
             // Keeping the compiler happy
-            if (program.Body == null) return new Program();
+            if (program.Body == null) return new ProgramStatements();
 
             while (NotEOF())
             {
@@ -41,20 +41,47 @@ namespace Capybara_Language
 
         private Expression ParseExpression()
         {
-            return new Expression();
+            return ParsePrimaryExpression();
         }
 
         private Expression ParsePrimaryExpression()
         {
             if (Tokens == null) return new Expression();
 
-            Token token = Tokens[0];
+            TokenType token = At.Type;
 
+            switch (token)
+            {
+                case TokenType.Identifier: return new Identifier(Eat().Value);
+                case TokenType.Number: return new NumericLiteral(double.Parse(Eat().Value));
+                case TokenType.OpenParenthesis:
+                    break;
+                case TokenType.CloseParenthesis:
+                    break;
+                case TokenType.BinaryOperator:
+                    break;
+                case TokenType.Let:
+                    break;
+                case TokenType.EOF:
+                    break;
+                default:
+                    // Unhandled token
+                    Console.WriteLine("Unexpected token found during parsing {0}", At.Value);
+                    Environment.Exit(1);
+                    // Unreachable code
+                    return null;
+            }
             return new Expression();
         }
 
-#pragma warning disable CS8602
+        private Token Eat()
+        {
+            // Simple shift implementation
+            Token toReturn = At;
+            Tokens.RemoveAt(0);
+            return toReturn;
+        }
+
         private Token At => Tokens[0];
-#pragma warning restore CS8602
     }
 }

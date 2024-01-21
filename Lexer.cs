@@ -73,13 +73,21 @@ namespace Capybara_Language
                             Token toAdd = HandleMultiCharString(sourceCode);
                             // TODO: test this
                             Tokens.Add(toAdd);
-                            sourceCode.RemoveRange(0, toAdd.Value.Length - 1);
+                            for (int i = 0; i < toAdd.Value.Length - 1; i++)
+                            {
+                                if (sourceCode.Count == 0) break;
+                                sourceCode.RemoveAt(0);
+                            }
                         }
                         else if (IsNumber(sourceCode[0]))
                         {
                             Token toAdd = HandleMultiCharNumber(sourceCode);
                             Tokens.Add(toAdd);
-                            sourceCode.RemoveRange(0, toAdd.Value.Length - 1);
+                            for (int i = 0; i < toAdd.Value.Length -1; i++)
+                            {
+                                if (sourceCode.Count == 0) break;
+                                sourceCode.RemoveAt(0);
+                            }
                         }
                         else if (IsSkippable(sourceCode[0]))
                         {

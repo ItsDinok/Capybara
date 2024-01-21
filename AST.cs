@@ -24,12 +24,12 @@ namespace Capybara_Language
         NodeType Kind { get; }
     }
 
-    public class Program : Statement
+    public class ProgramStatements : Statement
     {
-        public Program()
+        public ProgramStatements()
         {
             Kind = NodeType.Program;
-            Body = new List<Statement>();
+            Body = [];
         }
 
         readonly NodeType Kind = NodeType.Program;
@@ -44,20 +44,20 @@ namespace Capybara_Language
     public class BinaryExpression : Expression
     {
         readonly NodeType Kind = NodeType.BinaryExpression;
-        Expression ?Left;
-        Expression ?Right;
-        string ?Operator;
+        Expression? Left;
+        Expression? Right;
+        string? Operator;
     }
 
-    public class Identifier : Expression
+    public class Identifier (string symbol) : Expression
     {
         readonly NodeType Kind = NodeType.Identifier;
-        string ?Symbol;
+        string Symbol = symbol;
     }
 
-    public class NumericLiteral : Expression
+    public class NumericLiteral (double value): Expression
     {
         readonly NodeType Kind = NodeType.NumericLiteral;
-        double Value;
+        double Value = value;
     }
 }

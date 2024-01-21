@@ -1,14 +1,17 @@
-﻿// See https://aka.ms/new-console-template for more information
-using Capybara_Language;
+﻿using Capybara_Language;
 
-Console.WriteLine("Hello, World!");
+Parser parser = new();
+Console.WriteLine("Capybara 0.0.1 \n\n");
 
-Lexer lexer = new();
-
-List<Token> tokens = lexer.Tokenise("let x = 5");
-for (int i = 0; i < tokens.Count; i++)
+while (true)
 {
-    Console.WriteLine(tokens[i].Type.ToString());
-}
+    Console.Write("> ");
+    string? input = Console.ReadLine();
 
-Console.ReadLine();
+    if (input == null) continue;
+    if (input.Contains("exit")) Environment.Exit(0);
+
+    // TODO: Rename ProgramStatements
+    ProgramStatements AST = parser.ProduceAST(input);
+    Console.WriteLine(AST);
+}
