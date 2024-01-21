@@ -64,6 +64,7 @@ namespace Capybara_Language
                     case "+":
                     case "-":
                     case "/":
+                    case "%":
                         Tokens.Add(new Token(sourceCode[0], TokenType.BinaryOperator));
                         sourceCode.RemoveAt(0); break;
                     default:

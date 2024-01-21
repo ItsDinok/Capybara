@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.CompilerServices;
+using System.Security.AccessControl;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -41,12 +42,12 @@ namespace Capybara_Language
         
     }
 
-    public class BinaryExpression : Expression
+    public class BinaryExpression(Expression left, Expression right, string op) : Expression
     {
         readonly NodeType Kind = NodeType.BinaryExpression;
-        Expression? Left;
-        Expression? Right;
-        string? Operator;
+        Expression Left = left;
+        Expression Right = right;
+        string Operator = op;
     }
 
     public class Identifier (string symbol) : Expression

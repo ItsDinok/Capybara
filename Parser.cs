@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net.Http.Headers;
 using System.Reflection.Metadata.Ecma335;
+using System.Security.AccessControl;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -41,47 +43,86 @@ namespace Capybara_Language
 
         private Expression ParseExpression()
         {
-            return ParsePrimaryExpression();
+            return ParseAdditiveExpression();
+        }
+
+        // Handle orders of precedence
+        // AssignmentExpression -> MemberExpression -> FunctionCall -> Logical
+        // -> Comparitive -> Additive -> Multiplicative -> Unary -> PrimaryExpression
+        // Parse higher orders last
+
+        private Expression ParseAdditiveExpression()
+        {
+            // Left hand precedence
+            Expression left = ParseMultiplicativeExpression();
+
+            // Checks multiplication first
+            while(At().Value == "+" || At().Value == "-") {
+                string op = Eat().Value;
+                Expression right = ParseMultiplicativeExpression();
+                left = new BinaryExpression(left, right, op); 
+            }
+
+            return left;
+        }
+
+        private Expression ParseMultiplicativeExpression()
+        {
+            Expression left = ParsePrimaryExpression();
+
+            // Recursively work through multiplicative statements
+            while(At().Value == "*" || At().Value == "/" || At().Value == "%")
+            {
+                string op = Eat().Value;
+                Expression right = ParsePrimaryExpression();
+                left = new BinaryExpression(left, right, op);
+            }
+
+            return left;
         }
 
         private Expression ParsePrimaryExpression()
         {
-            if (Tokens == null) return new Expression();
-
-            TokenType token = At.Type;
+            TokenType token = At().Type;
 
             switch (token)
             {
                 case TokenType.Identifier: return new Identifier(Eat().Value);
                 case TokenType.Number: return new NumericLiteral(double.Parse(Eat().Value));
                 case TokenType.OpenParenthesis:
-                    break;
-                case TokenType.CloseParenthesis:
-                    break;
-                case TokenType.BinaryOperator:
-                    break;
-                case TokenType.Let:
-                    break;
-                case TokenType.EOF:
-                    break;
+                    Eat(); // Eat opening bracket
+                    Expression value = ParseExpression();
+                    Expect(TokenType.CloseParenthesis, "Unexpected token type found, expected )"); // Eat closing parenthesis
+                    return value;
                 default:
                     // Unhandled token
-                    Console.WriteLine("Unexpected token found during parsing {0}", At.Value);
+                    Console.WriteLine("Unexpected token found during parsing {0}", At().Value);
                     Environment.Exit(1);
                     // Unreachable code
                     return null;
             }
-            return new Expression();
         }
 
         private Token Eat()
         {
             // Simple shift implementation
-            Token toReturn = At;
+            Token toReturn = At();
             Tokens.RemoveAt(0);
             return toReturn;
         }
 
-        private Token At => Tokens[0];
+        private Token Expect(TokenType expected, string error)
+        {
+            Token token = Eat();
+            if (token.Type != expected)
+            {
+                Console.WriteLine(error);
+                Environment.Exit(1);
+            }
+
+            return token;
+        }
+
+        private Token At() => Tokens[0];
     }
 }

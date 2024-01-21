@@ -13,5 +13,9 @@ while (true)
 
     // TODO: Rename ProgramStatements
     ProgramStatements AST = parser.ProduceAST(input);
-    Console.WriteLine(AST);
+    if (AST.Body == null) continue;
+    for (int i = 0; i < AST.Body.Count; i++)
+    {
+        Console.WriteLine(AST.Body[i].ToString());
+    }
 }
