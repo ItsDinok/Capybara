@@ -25,15 +25,10 @@ namespace Capybara_Language
         EOF // End of file
     }
 
-    public struct Token
+    public struct Token(string value, TokenType type)
     {
-        public Token(string value, TokenType type)
-        {
-            Value = value; Type = type;
-        }
-
-        public string Value;
-        public TokenType Type;
+        public string Value = value;
+        public TokenType Type = type;
     }
 
     public class Lexer
@@ -45,6 +40,7 @@ namespace Capybara_Language
 
 
         private List<Token> ?Tokens;
+        private static readonly char[] SkippableArray = ['\n', '\t', ' '];
 
         public List<Token> Tokenise(string source)
         {
@@ -97,12 +93,12 @@ namespace Capybara_Language
             return Tokens;
         }
 
-        private static bool IsSkippable(string source) => new[] {'\n', '\t', ' '}.Contains(source[0]);
+        private static bool IsSkippable(string source) => SkippableArray.Contains(source[0]);
         private static bool IsNumber(string source) => int.TryParse(source[0].ToString(), out int _);
 
-        private Token HandleMultiCharNumber(List<string> sourceCode)
+        private static Token HandleMultiCharNumber(List<string> sourceCode)
         {
-            Token toReturn = new Token();
+            Token toReturn = new();
             string toTokenise = "";
 
             while(sourceCode.Count > 0 && IsNumber(sourceCode[0].ToString()))
@@ -117,7 +113,7 @@ namespace Capybara_Language
 
         private Token HandleMultiCharString(List<string> sourceCode)
         {
-            Token toReturn = new Token();
+            Token toReturn = new();
             string toTokenise = "";
 
             while(sourceCode.Count > 0 && char.IsLetter(char.Parse(sourceCode[0].ToString()))) {
@@ -128,7 +124,7 @@ namespace Capybara_Language
             toReturn.Value = toTokenise;
 
             // Check to see if token is a keyword
-            if (KEYWORDS.ContainsKey(toTokenise)) toReturn.Type = KEYWORDS[toTokenise];
+            if (KEYWORDS.TryGetValue(toTokenise, out TokenType value)) toReturn.Type = value;
             else toReturn.Type = TokenType.Identifier;
 
             return toReturn;
