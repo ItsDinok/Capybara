@@ -6,10 +6,11 @@ using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Capybara_Language
+namespace Capybara_Language.Frontend
 {
     public enum TokenType
     {
+        // Grouping and Operators
         Equals,
         OpenParenthesis,
         CloseParenthesis,
@@ -21,6 +22,7 @@ namespace Capybara_Language
         // Literals
         Identifier,
         Number,
+        Null,
 
         EOF // End of file
     }
@@ -35,11 +37,12 @@ namespace Capybara_Language
     {
         public readonly Dictionary<string, TokenType> KEYWORDS = new()
         {
-            {"let", TokenType.Let }
+            {"let", TokenType.Let },
+            {"null", TokenType.Null }
         };
 
 
-        private List<Token> ?Tokens;
+        private List<Token>? Tokens;
         private static readonly char[] SkippableArray = ['\n', '\t', ' '];
 
         public List<Token> Tokenise(string source)
@@ -47,9 +50,9 @@ namespace Capybara_Language
             Tokens = [];
             List<string> sourceCode = source.Select(c => c.ToString()).ToList();
 
-            while(sourceCode.Count > 0)
+            while (sourceCode.Count > 0)
             {
-                switch(sourceCode[0])
+                switch (sourceCode[0])
                 {
                     case "=":
                         Tokens.Add(new Token(sourceCode[0], TokenType.Equals));
@@ -84,7 +87,7 @@ namespace Capybara_Language
                         {
                             Token toAdd = HandleMultiCharNumber(sourceCode);
                             Tokens.Add(toAdd);
-                            for (int i = 0; i < toAdd.Value.Length -1; i++)
+                            for (int i = 0; i < toAdd.Value.Length - 1; i++)
                             {
                                 if (sourceCode.Count == 0) break;
                                 sourceCode.RemoveAt(0);
@@ -110,7 +113,7 @@ namespace Capybara_Language
             Token toReturn = new();
             string toTokenise = "";
 
-            while(sourceCode.Count > 0 && IsNumber(sourceCode[0].ToString()))
+            while (sourceCode.Count > 0 && IsNumber(sourceCode[0].ToString()))
             {
                 toTokenise += sourceCode[0].ToString();
                 sourceCode.RemoveAt(0);
@@ -125,7 +128,8 @@ namespace Capybara_Language
             Token toReturn = new();
             string toTokenise = "";
 
-            while(sourceCode.Count > 0 && char.IsLetter(char.Parse(sourceCode[0].ToString()))) {
+            while (sourceCode.Count > 0 && char.IsLetter(char.Parse(sourceCode[0].ToString())))
+            {
                 toTokenise += sourceCode[0];
                 sourceCode.RemoveAt(0);
             }

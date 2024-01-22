@@ -1,7 +1,7 @@
-﻿using Capybara_Language;
+﻿using Capybara_Language.Frontend;
 
 Parser parser = new();
-Console.WriteLine("Capybara 0.0.1 \n\n");
+Console.WriteLine("Capybara 0.1");
 
 while (true)
 {

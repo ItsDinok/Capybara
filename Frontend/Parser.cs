@@ -7,7 +7,7 @@ using System.Security.AccessControl;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Capybara_Language
+namespace Capybara_Language.Frontend
 {
     public class Parser
     {
@@ -57,10 +57,11 @@ namespace Capybara_Language
             Expression left = ParseMultiplicativeExpression();
 
             // Checks multiplication first
-            while(At().Value == "+" || At().Value == "-") {
+            while (At().Value == "+" || At().Value == "-")
+            {
                 string op = Eat().Value;
                 Expression right = ParseMultiplicativeExpression();
-                left = new BinaryExpression(left, right, op); 
+                left = new BinaryExpression(left, right, op);
             }
 
             return left;
@@ -71,7 +72,7 @@ namespace Capybara_Language
             Expression left = ParsePrimaryExpression();
 
             // Recursively work through multiplicative statements
-            while(At().Value == "*" || At().Value == "/" || At().Value == "%")
+            while (At().Value == "*" || At().Value == "/" || At().Value == "%")
             {
                 string op = Eat().Value;
                 Expression right = ParsePrimaryExpression();
@@ -94,6 +95,9 @@ namespace Capybara_Language
                     Expression value = ParseExpression();
                     Expect(TokenType.CloseParenthesis, "Unexpected token type found, expected )"); // Eat closing parenthesis
                     return value;
+                case TokenType.Null:
+                    Eat(); // Advance past null
+                    return new NullLiteral();
                 default:
                     // Unhandled token
                     Console.WriteLine("Unexpected token found during parsing {0}", At().Value);

@@ -6,7 +6,7 @@ using System.Security.AccessControl;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Capybara_Language
+namespace Capybara_Language.Frontend
 {
     enum NodeType
     {
@@ -16,7 +16,8 @@ namespace Capybara_Language
         BinaryExpression,
         CallExpression,
         UnaryExpression,
-        FunctionDeclaration
+        FunctionDeclaration,
+        NullLiteral
     }
 
     // Statements do not return values
@@ -34,12 +35,12 @@ namespace Capybara_Language
         }
 
         readonly NodeType Kind = NodeType.Program;
-        public List<Statement> ?Body { get; }
+        public List<Statement>? Body { get; }
     }
 
     public class Expression : Statement
     {
-        
+
     }
 
     public class BinaryExpression(Expression left, Expression right, string op) : Expression
@@ -50,15 +51,21 @@ namespace Capybara_Language
         string Operator = op;
     }
 
-    public class Identifier (string symbol) : Expression
+    public class Identifier(string symbol) : Expression
     {
         readonly NodeType Kind = NodeType.Identifier;
         string Symbol = symbol;
     }
 
-    public class NumericLiteral (double value): Expression
+    public class NumericLiteral(double value) : Expression
     {
         readonly NodeType Kind = NodeType.NumericLiteral;
         double Value = value;
+    }
+
+    public class NullLiteral() : Expression
+    {
+        readonly NodeType Kind = NodeType.NullLiteral;
+        readonly string Value = "null";
     }
 }
