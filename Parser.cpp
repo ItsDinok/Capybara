@@ -81,5 +81,36 @@ std::shared_ptr<Expression> ParsePrimaryExpression(Parser* parser) {
 	return nullptr;
 }
 
+std::shared_ptr<Expression> ParseBinaryExpression(Parser* parser, std::shared_ptr<Expression> left, BindingPowers bp) {
+	Token = Advance(parser);
+	return nullptr;
+}
+
 void CreateTokenLookups() {
+	// Logical expressions
+	Led(TokenType::AND, BindingPowers::LOGICAL, ParseBinaryExpression);
+	Led(TokenType::OR, BindingPowers::LOGICAL, ParseBinaryExpression);
+	// NOTE: DOTDOT operator requires very low precedence in order to function
+	Led(TokenType::DOTDOT, BindingPowers::LOGICAL, ParseBinaryExpression);
+
+	// Relational
+	Led(TokenType::LESS, BindingPowers::RELATIONAL, ParseBinaryExpression);	
+	Led(TokenType::LESSEQUALS, BindingPowers::RELATIONAL, ParseBinaryExpression);	
+	Led(TokenType::GREATER, BindingPowers::RELATIONAL, ParseBinaryExpression);	
+	Led(TokenType::GREATEREQUALS, BindingPowers::RELATIONAL, ParseBinaryExpression);	
+	Led(TokenType::EQUALTO, BindingPowers::RELATIONAL, ParseBinaryExpression);	
+	Led(TokenType::NOTEQUAL, BindingPowers::RELATIONAL, ParseBinaryExpression);	
+
+	// Additive and Multiplicative
+	Led(TokenType::PLUS, BindingPowers::ADDITIVE, ParseBinaryExpression);
+	Led(TokenType::MINUS, BindingPowers::ADDITIVE, ParseBinaryExpression);
+
+	Led(TokenType::STAR, BindingPowers::MULTIPLICATIVE, ParseBinaryExpression);
+	Led(TokenType::SLASH, BindingPowers::MULTIPLICATIVE, ParseBinaryExpression);
+	Led(TokenType::MOD, BindingPowers::MULTIPLICATIVE, ParseBinaryExpression);
+
+	// Literals and Symbols
+	Nud(TokenType::NUMBER, BindingPowers::PRIMARY, ParsePrimaryExpression);
+	Nud(TokenType::STRING, BindingPowers::PRIMARY, ParsePrimaryExpression);
+	Nud(TokenType::IDENTIFIER, BindingPowers::PRIMARY, ParsePrimaryExpression);
 }

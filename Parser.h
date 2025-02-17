@@ -50,7 +50,8 @@ struct Parser {
 
 using statementHandler = std::function<std::shared_ptr<Statement>(Parser*)>;
 using nudHandler = std::function<std::shared_ptr<Expression>(Parser*)>;
-using leftHandler = std::function<std::shared_ptr<Expression>(Parser*, Expression left, BindingPowers bindingPower)>;
+using leftHandler = std::function<std::shared_ptr<Expression>(Parser*, 
+		std::shared_ptr<Expression> left, BindingPowers bindingPower)>;
 
 using StatementLookup = std::map<TokenType, statementHandler>;
 using NudLookup = std::map<TokenType, nudHandler>;
@@ -69,3 +70,5 @@ void Stmt(TokenType type, statementHandler statementFunction);
 void CreateTokenLookups();
 
 std::shared_ptr<Expression> ParsePrimaryExpression(Parser* parser);
+std::shared_ptr<Expression> ParseBinaryExpression(Parser* parser,
+		std::shared_ptr<Expression> left, BindingPowers bp);
