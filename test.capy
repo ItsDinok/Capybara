@@ -1,0 +1,7 @@
+int x = 10;
+
+string y = "Hello world";
+
+if (y == x) {
+	return true;
+}
