@@ -19,6 +19,8 @@
 /*
 	- Char support
 	- Exponentiation
+	- Float support
+	- Syntax support for 123abc (should fail)
 */
 
 class Lexer

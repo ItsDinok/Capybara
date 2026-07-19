@@ -1,3 +1,11 @@
+>> Hello
+!! Hello
+?? Hello
+?! Hello
+// Boring
+
+$hello;
+
 int x = 10;
 
 string y = "Hello world";
@@ -5,3 +13,4 @@ string y = "Hello world";
 if (y == x) {
 	return true;
 }
+

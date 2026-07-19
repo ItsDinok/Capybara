@@ -15,6 +15,8 @@ Token Lexer::string_handler()
 	// Start after the speech mark
 	std::string buffer = "";
 	advance(1);
+	size_t start_line = m_line;
+	size_t start_column = m_column;
 
 	while (m_position < m_source.size() && m_source[m_position] != '"')
 	{
@@ -24,13 +26,14 @@ Token Lexer::string_handler()
 
 	// Skip speech mark
 	advance(1);
-	return Token(buffer, TokenType::STRING, m_line, m_column);
+	return Token(buffer, TokenType::STRING, start_line, start_column);
 }
 
 Token Lexer::comment_handler()
 {
 	std::string buffer = "";
-	advance(2);
+	size_t start_line = m_line;
+	size_t start_column = m_column;
 
 	// End of line comments are the only way
 	while (m_position < m_source.size() &&  m_source[m_position] != '\n')
@@ -39,13 +42,15 @@ Token Lexer::comment_handler()
 		advance(1);
 	}
 
-	return Token(buffer, TokenType::COMMENT, m_line, m_column);
+	return Token(buffer, TokenType::COMMENT, start_line, start_column);
 }
 
 Token Lexer::literal_handler()
 {
 	// Numbers do not need to be
 	std::string buffer = "";
+	size_t start_line = m_line;
+	size_t start_column = m_column;
 
 	if (std::isdigit(static_cast<unsigned char>(m_source[m_position])))
 	{
@@ -59,7 +64,7 @@ Token Lexer::literal_handler()
 			advance(1);
 		}
 
-		return Token(buffer, TokenType::NUMBER, m_line, m_column);
+		return Token(buffer, TokenType::NUMBER, start_line, start_column);
 	}
 
 	// Text literal
@@ -72,20 +77,19 @@ Token Lexer::literal_handler()
 
 	if (buffer == "")
 	{
-		// TODO: fold this into better diagnostics
-		std::runtime_error("Unknown/Invalid symbol.");
+		token_diagnostics("Unknown character not accepted.");
 	}
 
 	// Check against keywords
 	if (reserved_keywords.find(buffer) != reserved_keywords.end())
 	{
 		return Token(buffer, reserved_keywords.find(buffer)->second,
-				m_line, m_column);
+				start_line, start_column);
 	}
 	else
 	{
 		return Token(buffer, TokenType::IDENTIFIER,
-			m_line, m_column);
+			start_line, start_column);
 	}
 }
 
@@ -123,7 +127,6 @@ std::vector<Token> Lexer::tokenise()
 	// Iterate through every character and create tokens from it
 	while (m_position < m_source.size())
 	{
-		std::cout << m_source[m_position] << std::endl;
 		switch (m_source[m_position])
 		{
 			// Empty space
