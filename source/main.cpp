@@ -4,6 +4,7 @@
 #include <string>
 #include "tokens.h"
 #include "lexer.h"
+#include "ast.h"
 
 std::string read_file(const std::string &path)
 {
@@ -30,4 +31,6 @@ int main(int argc, char* argv[])
 			tokens[i].show();
 		}
 	}
+
+	std::cout << AST::val(AST::BindingPower::Assignment) << std::endl;
 }
