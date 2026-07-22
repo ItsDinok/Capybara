@@ -5,11 +5,20 @@
 
 // TODO: Error tracking in parser
 
-struct Parser
+class Parser
 {
-	Parser();
-	AST::BlockStatement parse(std::vector<Token> tokens);
+public:
+	Parser(const std::vector<Token> &tokens);
+	AST::BlockStatement parse();
+	Token advance(size_t places);
+
+private:
+	Token current_token();
+	TokenType current_token_type();
+	bool is_eof();
+
+	std::unique_ptr<AST::Statement> parse_statement();
 
 	std::vector<Token> tokens;
-	size_t position;
+	size_t position = 0;
 };

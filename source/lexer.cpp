@@ -1,5 +1,4 @@
 #include "lexer.h"
-// TODO: Ensure that the column of a token is its START point
 /*
 	The tokeniser is very unwieldy and is constantly being iterated on. If anything 
 	new gets added to it do your best to keep it clean.
@@ -8,6 +7,28 @@
 Lexer::Lexer(const std::string &input)
 {
 	m_source = input;
+}
+
+Token Lexer::char_handler()
+{
+	// Char has its own handler because it can be easily invalidated before parsing
+	if (m_source[m_position + 1] == '\'')
+	{
+		advance(2);
+		return Token("", TokenType::T_CHAR, m_line, m_column - 1);
+	}
+	else if (m_source[m_position + 2] == '\'')
+	{
+		std::string str_value = std::string(1, m_source[m_position + 1]);
+		advance(3);
+		return Token(str_value, TokenType::T_CHAR, m_line, m_column - 2);
+	}
+	else
+	{
+		token_diagnostics("Char pattern not adhered to!");
+	}
+	// Unreachable but makes compiler happy
+	return Token("", TokenType::EOF_TOKEN, 0, 0);
 }
 
 Token Lexer::string_handler()
@@ -26,7 +47,7 @@ Token Lexer::string_handler()
 
 	// Skip speech mark
 	advance(1);
-	return Token(buffer, TokenType::STRING, start_line, start_column);
+	return Token(buffer, TokenType::T_STRING, start_line, start_column);
 }
 
 Token Lexer::comment_handler()
@@ -133,7 +154,7 @@ std::vector<Token> Lexer::tokenise()
 			case '\n':
 				++m_position;
 				++m_line;
-				m_column = 0;
+				m_column = 1;
 				break;
 			case ' ':
 			case '\t':
@@ -183,6 +204,11 @@ std::vector<Token> Lexer::tokenise()
 				break;
 			case '"':
 				tokens.push_back(string_handler());
+				break;
+			case '^':
+				tokens.push_back(Token("^", TokenType::EXPONENT,
+					m_line, m_column));
+				advance(1);
 				break;
 
 			// Built symbols
@@ -376,6 +402,11 @@ std::vector<Token> Lexer::tokenise()
 						advance(1);
 						break;
 				}
+				break;
+
+			// Char handler
+			case '\'':
+				tokens.push_back(char_handler());
 				break;
 
 			// Comment types

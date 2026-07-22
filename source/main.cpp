@@ -4,6 +4,7 @@
 #include <string>
 #include "tokens.h"
 #include "lexer.h"
+#include "parser.h"
 #include "ast.h"
 
 std::string read_file(const std::string &path)
@@ -30,6 +31,9 @@ int main(int argc, char* argv[])
 		{
 			tokens[i].show();
 		}
+		// Create parser for test
+		Parser parser(tokens);
+		parser.parse();
 	}
 
 	std::cout << AST::val(AST::BindingPower::Assignment) << std::endl;

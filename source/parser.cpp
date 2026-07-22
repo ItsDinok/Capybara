@@ -1,12 +1,45 @@
 #include "parser.h"
 
-// TODO: Probably important stuff in constructor
-Parser::Parser()
+Parser::Parser(const std::vector<Token> &tokens)
 {
-
+	this->tokens = tokens;
 }
 
-AST::BlockStatement Parser::parse(std::vector<Token> tokens)
+Token Parser::current_token()
 {
-	return AST::BlockStatement();
+	return tokens[position];
+}
+
+Token Parser::advance(size_t places) 
+{
+	position += places;
+	return tokens[position - 1];
+}
+
+TokenType Parser::current_token_type()
+{
+	return tokens[position].type;
+}
+
+bool Parser::is_eof()
+{
+	return (tokens[position].type == TokenType::EOF_TOKEN);
+}
+
+std::unique_ptr<AST::Statement> Parser::parse_statement()
+{
+	return std::make_unique<AST::Statement>(AST::ExpressionStatement{});
+}
+
+AST::BlockStatement Parser::parse ()
+{
+	AST::BlockStatement block;
+
+	while (!is_eof())
+	{
+		block.body.push_back(parse_statement());
+		advance(1);
+	}
+
+	return block;
 }

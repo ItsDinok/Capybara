@@ -42,6 +42,7 @@ enum class TokenType
 	NUMBER,				// 123
 	STRING,				// "xxx"
 	IDENTIFIER,			// varname
+	EXPONENT,			// ^
 
 	SEMICOLON,			// ;
 	LEFT_BRACE,			// {
@@ -66,6 +67,7 @@ enum class TokenType
 	T_DOUBLE,			// double
 	T_BOOL,				// bool
 	T_VOID,				// void
+	T_CHAR,				// char
 
 	IF,					// if
 	ELSE,				// else
@@ -94,7 +96,8 @@ inline const std::unordered_map<std::string_view, TokenType> reserved_keywords
 	{"float", TokenType::T_FLOAT},
 	{"double", TokenType::T_DOUBLE},
 	{"bool", TokenType::T_BOOL},
-	{"void", TokenType::T_VOID},
+	{"void", TokenType::T_VOID},	
+	{"char", TokenType::T_CHAR},
 };
 
 inline const std::unordered_map<TokenType, std::string_view> token_type_names
@@ -127,6 +130,7 @@ inline const std::unordered_map<TokenType, std::string_view> token_type_names
 	{ TokenType::T_DOUBLE,			"T_DOUBLE" },
 	{ TokenType::T_BOOL,			"T_BOOL" },
 	{ TokenType::T_VOID,			"T_VOID" },
+	{ TokenType::T_CHAR,			"T_CHAR" },
 	{ TokenType::IF,				"IF" },
 	{ TokenType::ELSE,				"ELSE" },
 	{ TokenType::WHILE,				"WHILE" },
@@ -147,7 +151,7 @@ inline const std::unordered_map<TokenType, std::string_view> token_type_names
 	{ TokenType::COMMA,				"COMMA" },
 	{ TokenType::OR,				"OR" },
 	{ TokenType::AND,				"AND" },
-
+	{ TokenType::EXPONENT,			"EXPONENT"},
 };
 
 struct Token

@@ -18,7 +18,6 @@
 // TODO: Missing features:
 /*
 	- Char support
-	- Exponentiation
 	- Float support
 	- Syntax support for 123abc (should fail)
 */
@@ -33,6 +32,7 @@ private:
 	Token comment_handler();
 	Token literal_handler();
 	Token string_handler();
+	Token char_handler();
 
 	void token_diagnostics(const std::string &error_message);
 	void advance(size_t spaces);
@@ -40,6 +40,6 @@ private:
 	std::string m_source;
 	size_t m_position = 0;
 
-	size_t m_line = 0;
-	size_t m_column = 0;
+	size_t m_line = 1;
+	size_t m_column = 1;
 };
