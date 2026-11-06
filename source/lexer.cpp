@@ -17,7 +17,12 @@ Token Lexer::char_handler()
 		advance(2);
 		return Token("", TokenType::T_CHAR, m_line, m_column - 1);
 	}
-	else if (m_source[m_position + 2] == '\'')
+	if (m_position + 2 > m_source.size())
+	{
+		token_diagnostics("Char pattern not adhered to!");
+		return Token("", TokenType::EOF_Token, 0, 0);
+	}
+	if (m_source[m_position + 2] == '\'')
 	{
 		std::string str_value = std::string(1, m_source[m_position + 1]);
 		advance(3);

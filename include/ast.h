@@ -78,7 +78,7 @@ class BinaryExpression : public Expression
 {
 public:
 	std::unique_ptr<Expression> left, right;
-	Token operand;
+	Token operator_;
 };
 
 // Literal expressions

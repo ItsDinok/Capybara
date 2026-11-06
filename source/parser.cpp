@@ -28,7 +28,7 @@ bool Parser::is_eof()
 
 std::unique_ptr<AST::Statement> Parser::parse_statement()
 {
-	return std::make_unique<AST::Statement>(AST::ExpressionStatement{});
+	return std::make_unique<AST::Statement>();
 }
 
 AST::BlockStatement Parser::parse ()
