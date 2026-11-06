@@ -21,7 +21,7 @@ Token Lexer::char_handler()
 	{
 		std::string str_value = std::string(1, m_source[m_position + 1]);
 		advance(3);
-		return Token(str_value, TokenType::T_CHAR, m_line, m_column - 2);
+		return Token(str_value, TokenType::CHAR, m_line, m_column - 2);
 	}
 	else
 	{
@@ -47,7 +47,7 @@ Token Lexer::string_handler()
 
 	// Skip speech mark
 	advance(1);
-	return Token(buffer, TokenType::T_STRING, start_line, start_column);
+	return Token(buffer, TokenType::STRING, start_line, start_column);
 }
 
 Token Lexer::comment_handler()
@@ -189,6 +189,11 @@ std::vector<Token> Lexer::tokenise()
 				break;
 			case ',':
 				tokens.push_back(Token(",", TokenType::COMMA,
+					m_line, m_column));
+				advance(1);
+				break;
+			case '.':
+				tokens.push_back(Token(".", TokenType::DOT,
 					m_line, m_column));
 				advance(1);
 				break;

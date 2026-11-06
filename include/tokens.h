@@ -41,9 +41,11 @@ enum class TokenType
 	COMMENT,			// // !! ?? >> ?! (Capybara supports comment types)
 	NUMBER,				// 123
 	STRING,				// "xxx"
+	CHAR,				// 'x'
 	IDENTIFIER,			// varname
 	EXPONENT,			// ^
 
+	DOT,				// .
 	SEMICOLON,			// ;
 	LEFT_BRACE,			// {
 	RIGHT_BRACE,		// }
@@ -76,6 +78,7 @@ enum class TokenType
 	BREAK,				// break
 	CONTINUE,			// continue
 	RETURN,				// return
+	GRAZE,				// graze
 
 	EOF_TOKEN,
 };
@@ -98,6 +101,7 @@ inline const std::unordered_map<std::string_view, TokenType> reserved_keywords
 	{"bool", TokenType::T_BOOL},
 	{"void", TokenType::T_VOID},	
 	{"char", TokenType::T_CHAR},
+	{"graze", TokenType::GRAZE},
 };
 
 inline const std::unordered_map<TokenType, std::string_view> token_type_names
@@ -152,6 +156,8 @@ inline const std::unordered_map<TokenType, std::string_view> token_type_names
 	{ TokenType::OR,				"OR" },
 	{ TokenType::AND,				"AND" },
 	{ TokenType::EXPONENT,			"EXPONENT"},
+	{ TokenType::GRAZE,				"GRAZE"},
+	{ TokenType::DOT,				"DOT"},
 };
 
 struct Token
