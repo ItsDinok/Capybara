@@ -17,14 +17,12 @@ Token Lexer::char_handler()
 	if (m_source[m_position + 1] == '\'')
 	{
 		token_diagnostics("Empty chars are not valid. For a blank char use ' '");
-		return Token("", TokenType::T_CHAR, m_line, m_column - 1);
-	}
-	if (m_position + 2 > m_source.size())
+	} else if (m_position + 2 > m_source.size())
 	{
 		token_diagnostics("Char pattern not adhered to!");
-		return Token("", TokenType::EOF_TOKEN, 0, 0);
 	}
-	if (m_source[m_position + 2] == '\'')
+	// Typical case
+	else if (m_source[m_position + 2] == '\'')
 	{
 		std::string str_value = std::string(1, m_source[m_position + 1]);
 		advance(3);
@@ -53,12 +51,8 @@ Token Lexer::char_handler()
 				return Token("", TokenType::EOF_TOKEN, 0, 0);
 		}
 	}
-	else
-	{
-		token_diagnostics("Char pattern not adhered to!");
-		// Unreachable but makes compiler happy
-		return Token("", TokenType::EOF_TOKEN, 0, 0);
-	}
+	// Unreachable but it makes the compiler happy
+	return Token("", TokenType::EOF_TOKEN, 0, 0);
 }
 
 Token Lexer::string_handler()
@@ -161,9 +155,6 @@ void Lexer::advance(size_t spaces)
 }
 
 // This checks to see if it is a one digit or multidigit token and then handles it accordingly
-// TODO: Handle strings
-// TODO: Handle numbers
-// TODO: Handle literals
 // TODO: Efficient error handling (table maybe?)
 bool Lexer::emit(const char value, std::vector<Token>& tokens)
 {

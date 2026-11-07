@@ -17,8 +17,7 @@
 	- Write tests for it that check tokenisation and syntax
 */
 
-// TODO: Structure and expand
-// TODO: Consider exponentiation
+// TODO: Turn this into an X-macro
 enum class TokenType
 {
 	LEFT_PARENTHESIS,	// (
