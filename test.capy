@@ -9,6 +9,7 @@ graze capy.package;
 $hello;
 
 int x = 10;
+float m = 15.50;
 
 string y = "Hello world";
 

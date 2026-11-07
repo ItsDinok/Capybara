@@ -15,13 +15,6 @@
 	I will therefore use an iterative approach, which works out as similar speed to a regex engine anyway
 */
 
-// TODO: Missing features:
-/*
-	- Char support
-	- Float support
-	- Syntax support for 123abc (should fail)
-*/
-
 class Lexer
 {
 public:

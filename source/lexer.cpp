@@ -4,13 +4,15 @@
 	new gets added to it do your best to keep it clean.
 */
 
+// BUG: String handler does not catch an unclosed string
+// TODO: Compiler comments
+
 Lexer::Lexer(const std::string &input)
 {
 	m_source = input;
 }
 
 
-// TODO: Investigate prettying this up
 Token Lexer::char_handler()
 {
 	// Char has its own handler because it can be easily invalidated before parsing
@@ -102,9 +104,13 @@ Token Lexer::literal_handler()
 		// Start of number literal
 		buffer += m_source[m_position];
 		advance(1);
+	
+		bool is_dot = false;
 
-		while (std::isdigit(static_cast<unsigned char>(m_source[m_position])))
+		while (std::isdigit(static_cast<unsigned char>(m_source[m_position]))
+			|| (m_source[m_position] == '.' && !is_dot))
 		{
+			if (m_source[m_position] == '.') is_dot = true;
 			buffer += m_source[m_position];
 			advance(1);
 		}
