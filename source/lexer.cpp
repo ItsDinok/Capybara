@@ -14,13 +14,13 @@ Token Lexer::char_handler()
 	// Char has its own handler because it can be easily invalidated before parsing
 	if (m_source[m_position + 1] == '\'')
 	{
-		advance(2);
+		token_diagnostics("Empty chars are not valid. For a blank char use ' '");
 		return Token("", TokenType::T_CHAR, m_line, m_column - 1);
 	}
 	if (m_position + 2 > m_source.size())
 	{
 		token_diagnostics("Char pattern not adhered to!");
-		return Token("", TokenType::EOF_Token, 0, 0);
+		return Token("", TokenType::EOF_TOKEN, 0, 0);
 	}
 	if (m_source[m_position + 2] == '\'')
 	{
@@ -31,9 +31,9 @@ Token Lexer::char_handler()
 	else
 	{
 		token_diagnostics("Char pattern not adhered to!");
+		// Unreachable but makes compiler happy
+		return Token("", TokenType::EOF_TOKEN, 0, 0);
 	}
-	// Unreachable but makes compiler happy
-	return Token("", TokenType::EOF_TOKEN, 0, 0);
 }
 
 Token Lexer::string_handler()
@@ -135,6 +135,80 @@ void Lexer::advance(size_t spaces)
 	m_column += spaces;
 }
 
+// This checks to see if it is a one digit or multidigit token and then handles it accordingly
+// TODO: Handle strings
+// TODO: Handle numbers
+// TODO: Handle literals
+// TODO: Efficient error handling (table maybe?)
+bool Lexer::emit(const char value, std::vector<Token>& tokens)
+{
+	std::string with_next = std::string (1, value) + m_source[m_position + 1];
+
+	// Comment indicators
+	if (comment_indicators.contains(with_next))
+	{
+		tokens.push_back(comment_handler());
+		return true;
+	}
+
+	// Pair tokens
+	if (pair_types.contains(with_next))
+	{
+		tokens.push_back(Token(with_next, pair_types.find(with_next)->second,
+			m_line, m_column));
+		advance(2);
+		return true;
+	}
+
+	// Char/String handlers
+	if (value == '"')
+	{
+		tokens.push_back(string_handler());
+		return true;
+	}
+	if (value == '\'')
+	{
+		tokens.push_back(char_handler());
+		return true;
+	}
+
+	// Single digit tokens
+	if (single_char_types.contains(value))
+	{
+		tokens.push_back(Token(std::string(1, value), single_char_types.find(value)->second,
+			m_line, m_column));
+		advance(1);
+		return true;
+	}
+
+	// Odd default edge cases
+	switch (value)
+	{
+		case ' ':
+		case '\t':
+			advance(1);
+			return true;
+		case '\n':
+			++m_position;
+			++m_line;
+			m_column = 1;
+			return true;
+	
+		// NOTE: These must have passed their valid points
+		case '|':
+			token_diagnostics("| is not a valid symbol!");
+			return false;
+		case '&':
+			token_diagnostics("& is not a valid symbol!");
+			return false;
+		default:
+			break;
+	}
+
+	tokens.push_back(literal_handler());
+	return true;
+}
+
 /*
 	ADDING NEW TOKENS
 	When a new token is added the following steps need to be taken as a checklist:
@@ -153,290 +227,7 @@ std::vector<Token> Lexer::tokenise()
 	// Iterate through every character and create tokens from it
 	while (m_position < m_source.size())
 	{
-		switch (m_source[m_position])
-		{
-			// Empty space
-			case '\n':
-				++m_position;
-				++m_line;
-				m_column = 1;
-				break;
-			case ' ':
-			case '\t':
-				advance(1);
-				break;
-
-			// Simple symbols
-			case ';':
-				tokens.push_back(Token(";", TokenType::SEMICOLON, 
-					m_line, m_column));
-				advance(1);
-				break;
-			case '{':
-				tokens.push_back(Token("{", TokenType::LEFT_BRACE,
-					m_line, m_column));
-				advance(1);
-				break;
-			case '}':
-				tokens.push_back(Token("}", TokenType::RIGHT_BRACE,
-					m_line, m_column));
-				advance(1);
-				break;
-			case '[':
-				tokens.push_back(Token("[", TokenType::LEFT_ACCESS,
-					m_line, m_column));
-				advance(1);
-				break;
-			case ']':
-				tokens.push_back(Token("]", TokenType::RIGHT_ACCESS,
-					m_line, m_column));
-				advance(1);
-				break;
-			case ',':
-				tokens.push_back(Token(",", TokenType::COMMA,
-					m_line, m_column));
-				advance(1);
-				break;
-			case '.':
-				tokens.push_back(Token(".", TokenType::DOT,
-					m_line, m_column));
-				advance(1);
-				break;
-			case '(':
-				tokens.push_back(Token("(", TokenType::LEFT_PARENTHESIS,
-					m_line, m_column));
-				advance(1);
-				break;
-			case ')':
-				tokens.push_back(Token(")", TokenType::RIGHT_PARENTHESIS,
-					m_line, m_column));
-				advance(1);
-				break;
-			case '"':
-				tokens.push_back(string_handler());
-				break;
-			case '^':
-				tokens.push_back(Token("^", TokenType::EXPONENT,
-					m_line, m_column));
-				advance(1);
-				break;
-
-			// Built symbols
-			case '+':
-				switch (m_source[m_position + 1])
-				{
-					case '+':
-						tokens.push_back(Token("++", TokenType::INCREMENT,
-							m_line, m_column));
-						advance(2);
-						break;
-					case '=':
-						tokens.push_back(Token("+=", TokenType::ASSIGNPLUS,
-							m_line, m_column));
-						advance(2);
-						break;
-					default:
-						tokens.push_back(Token("+", TokenType::PLUS,
-							m_line, m_column));
-						advance(1);
-						break;
-				}
-				break;
-			
-			case '-':
-				switch (m_source[m_position + 1])
-				{
-					case '-':
-						tokens.push_back(Token("--", TokenType::DECREMENT,
-							m_line, m_column));
-						advance(2);
-						break;
-					case '=':
-						tokens.push_back(Token("-=", TokenType::ASSIGNMINUS,
-							m_line, m_column));
-						advance(2);
-						break;
-					default:
-						tokens.push_back(Token("-", TokenType::MINUS,
-							m_line, m_column));
-						advance(1);
-						break;
-				}
-				break;
-
-			case '%':
-				switch (m_source[m_position + 1])
-				{
-					case '=':
-						tokens.push_back(Token("%=", TokenType::ASSIGNMODULO,
-							m_line, m_column));
-						advance(2);
-						break;
-					default:
-						tokens.push_back(Token("%", TokenType::MODULO,
-							m_line, m_column));
-						advance(1);
-						break;
-				}
-				break;
-
-			case '*':
-				switch (m_source[m_position + 1])
-				{
-					case '=':
-						tokens.push_back(Token("*=", TokenType::ASSIGNSTAR,
-							m_line, m_column));
-						advance(2);
-						break;
-					default:
-						tokens.push_back(Token("*", TokenType::STAR,
-							m_line, m_column));
-						advance(1);
-						break;
-				}
-				break;
-
-			case '/':
-				switch (m_source[m_position + 1])
-				{
-					case '=':
-						tokens.push_back(Token("/=", TokenType::ASSIGNSLASH,
-							m_line, m_column));
-						advance(2);
-						break;
-					case '/':
-						tokens.push_back(comment_handler());
-						break;
-					default:
-						tokens.push_back(Token("/", TokenType::SLASH,
-							m_line, m_column));
-						advance(1);
-						break;
-				}
-				break;
-
-			case '|':
-				switch (m_source[m_position + 1])
-				{
-					case '|':
-						tokens.push_back(Token("||", TokenType::OR,
-							m_line, m_column));
-						advance(2);
-						break;
-					default:
-						// This case is an error. Capybara currently has no |
-						token_diagnostics("Symbol | must be followed by another |.");
-						break;
-				}
-				break;
-
-			case '&':
-				switch(m_source[m_position + 1])
-				{
-					case '&':
-						tokens.push_back(Token("&&", TokenType::AND,
-							m_line, m_column));
-						advance(2);
-						break;
-					default:
-						token_diagnostics("Symbol & must be followed by another &");
-						break;
-				}
-				break;
-
-			case '!':
-				switch (m_source[m_position +1])
-				{
-					case '!':
-						tokens.push_back(comment_handler());
-						break;
-					case '=':
-						tokens.push_back(Token("!=", TokenType::NOT_EQUALITY,
-							m_line, m_column));
-						advance(2);
-						break;
-					default:
-						tokens.push_back(Token("!", TokenType::NOT,
-							m_line, m_column));
-						advance(1);
-						break;
-				}
-				break;
-
-			case '>':
-				switch (m_source[m_position + 1])
-				{
-					case '>':
-						tokens.push_back(comment_handler());
-						break;
-					case '=':
-						tokens.push_back(Token(">=", TokenType::GREATER_EQUAL,
-							m_line, m_column));
-						advance(2);
-						break;
-					default:
-						tokens.push_back(Token(">", TokenType::GREATER,
-							m_line, m_column));
-						advance(1);
-						break;
-				}
-				break;
-
-			case '<':
-				switch (m_source[m_position + 1])
-				{
-					case '=':
-						tokens.push_back(Token("<=", TokenType::LESSER_EQUAL,
-							m_line, m_column));
-						advance(2);
-						break;
-					default:
-						tokens.push_back(Token("<", TokenType::LESSER,
-							m_line, m_column));
-						advance(1);
-						break;
-				}
-				break;
-
-			case '=':
-				switch (m_source[m_position + 1])
-				{
-					case '=':
-						tokens.push_back(Token("==", TokenType::EQUALITY,
-							m_line, m_column));
-						advance(2);
-						break;
-					default:
-						tokens.push_back(Token("=", TokenType::ASSIGNMENT,
-							m_line, m_column));
-						advance(1);
-						break;
-				}
-				break;
-
-			// Char handler
-			case '\'':
-				tokens.push_back(char_handler());
-				break;
-
-			// Comment types
-			case '?':
-				switch (m_source[m_position + 1])
-				{
-					case '?':
-					case '!':
-						tokens.push_back(comment_handler());
-						break;
-					default:
-						token_diagnostics("Comment demarcater must be followed by ! or ?");
-						break;
-				}
-				break;
-
-			default:
-				tokens.push_back(literal_handler());
-				break;
-		}
+		if (emit(m_source[m_position], tokens)) continue;
 	}
 
 	tokens.push_back(Token("EOF", TokenType::EOF_TOKEN, m_line, m_column));

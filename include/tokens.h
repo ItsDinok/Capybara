@@ -1,5 +1,6 @@
 #pragma once
 #include <unordered_map>
+#include <unordered_set>
 #include <string_view>
 #include <iostream>
 #include <vector>
@@ -103,6 +104,50 @@ inline const std::unordered_map<std::string_view, TokenType> reserved_keywords
 	{"char", TokenType::T_CHAR},
 	{"graze", TokenType::GRAZE},
 };
+
+// Does not include speech or char symbols
+inline const std::unordered_map<char, TokenType> single_char_types
+{
+	{';', TokenType::SEMICOLON},
+	{'{', TokenType::LEFT_BRACE},
+	{'}', TokenType::RIGHT_BRACE},
+	{'[', TokenType::LEFT_ACCESS},
+	{']', TokenType::RIGHT_ACCESS},
+	{',', TokenType::COMMA},
+	{'.', TokenType::DOT},
+	{'(', TokenType::LEFT_PARENTHESIS},
+	{')', TokenType::RIGHT_PARENTHESIS},
+	{'^', TokenType::EXPONENT},
+	{'+', TokenType::PLUS},
+	{'-', TokenType::MINUS},
+	{'*', TokenType::STAR},
+	{'/', TokenType::SLASH},
+	{'%', TokenType::MODULO},
+	{'=', TokenType::ASSIGNMENT},
+	{'<', TokenType::LESSER},
+	{'>', TokenType::GREATER},
+};
+
+// This does not include comment handlers
+inline const std::unordered_map<std::string, TokenType> pair_types
+{
+	{"++", TokenType::INCREMENT},
+	{"+=", TokenType::ASSIGNPLUS},
+	{"--", TokenType::DECREMENT},
+	{"-=", TokenType::ASSIGNMINUS},
+	{"/=", TokenType::ASSIGNSLASH},
+	{"*=", TokenType::ASSIGNSTAR},
+	{"%=", TokenType::ASSIGNMODULO},
+	{"||", TokenType::OR},
+	{"&&", TokenType::AND},
+	{"!=", TokenType::NOT_EQUALITY},
+	{">=", TokenType::GREATER_EQUAL},
+	{"<=", TokenType::LESSER_EQUAL},
+	{"==", TokenType::EQUALITY},
+};
+
+inline const std::unordered_set<std::string> comment_indicators
+{"!!", ">>", "??", "?!", "//"};
 
 inline const std::unordered_map<TokenType, std::string_view> token_type_names
 {

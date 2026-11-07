@@ -36,6 +36,7 @@ private:
 
 	void token_diagnostics(const std::string &error_message);
 	void advance(size_t spaces);
+	bool emit(const char value, std::vector<Token>& tokens);
 
 	std::string m_source;
 	size_t m_position = 0;

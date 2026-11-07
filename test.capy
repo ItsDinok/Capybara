@@ -12,7 +12,7 @@ int x = 10;
 
 string y = "Hello world";
 
-char h = '';
+char h = ' ';
 char g = 'a';
 
 if (y == x) {
