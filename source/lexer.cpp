@@ -6,12 +6,29 @@
 
 // BUG: String handler does not catch an unclosed string
 // TODO: Compiler comments
+// BUG: >> comment needs to start on FIRST whitespace of a newline
 
 Lexer::Lexer(const std::string &input)
 {
 	m_source = input;
 }
 
+// This processes string escapes such as \n
+std::string escape_handler(char next_)
+{
+	switch(next_)
+	{
+		case 't':
+		case 'n':
+		case '\\':
+		case '0':
+		case 'r':
+		case '"':
+			return "\\" + std::string(1, next_);
+		default:
+			return "-1";
+	}
+}
 
 Token Lexer::char_handler()
 {
@@ -33,25 +50,15 @@ Token Lexer::char_handler()
 	// Escape characters (\)
 	else if (m_source[m_position + 1] == '\\')
 	{
-		char next_char = m_source[m_position + 2];
-		switch (next_char)
+		std::string sequence = escape_handler(m_source[m_position + 2]);
+		if (sequence == "-1")
 		{
-			case 't':
-				advance(4);
-				return Token("\t", TokenType::CHAR, m_line, m_column - 3);
-				break;
-			case 'n':
-				advance(4);
-				return Token("\n", TokenType::CHAR, m_line, m_column - 3);
-				break;
-			case '\\':
-				advance(4);
-				return Token("\\", TokenType::CHAR, m_line, m_column - 3);
-				break;
-			default:
-				token_diagnostics("Char is limited to one character.");
-				return Token("", TokenType::EOF_TOKEN, 0, 0);
+			token_diagnostics("Invalid escape character.");
+			return Token("NULL", TokenType::EOF_TOKEN, 0, 0);
 		}
+
+		advance(4);
+		return Token(sequence, TokenType::CHAR, m_line, m_column -3);
 	}
 	// Unreachable but it makes the compiler happy
 	return Token("", TokenType::EOF_TOKEN, 0, 0);
@@ -67,6 +74,21 @@ Token Lexer::string_handler()
 
 	while (m_position < m_source.size() && m_source[m_position] != '"')
 	{
+		// Handle escape characters
+		if (m_source[m_position] == '\\')
+		{
+			std::string sequence = escape_handler(m_source[m_position + 1]);
+			if (sequence == "-1") 
+			{
+				token_diagnostics("Invalid escape character.");
+				return Token("NULL", TokenType::EOF_TOKEN, 0, 0);
+			}
+
+			buffer += sequence;
+			advance(2);
+			continue;
+		}
+
 		buffer += m_source[m_position];
 		advance(1);
 	}
@@ -104,9 +126,8 @@ Token Lexer::literal_handler()
 		// Start of number literal
 		buffer += m_source[m_position];
 		advance(1);
-	
-		bool is_dot = false;
 
+		bool is_dot = false;
 		while (std::isdigit(static_cast<unsigned char>(m_source[m_position]))
 			|| (m_source[m_position] == '.' && !is_dot))
 		{

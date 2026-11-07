@@ -9,9 +9,10 @@ graze capy.package;
 $hello;
 
 int x = 10;
-float m = 15.50;
+float m = 15.50.;
 
 string y = "Hello world";
+string reee = "Hello \n World";
 
 char h = ' ';
 char g = 'a';
