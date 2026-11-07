@@ -126,6 +126,7 @@ inline const std::unordered_map<char, TokenType> single_char_types
 	{'=', TokenType::ASSIGNMENT},
 	{'<', TokenType::LESSER},
 	{'>', TokenType::GREATER},
+	{'!', TokenType::NOT},
 };
 
 // This does not include comment handlers
@@ -172,6 +173,7 @@ inline const std::unordered_map<TokenType, std::string_view> token_type_names
 	{ TokenType::COMMENT,			"COMMENT" },
 	{ TokenType::NUMBER,			"NUMBER" },
 	{ TokenType::STRING,			"STRING" },
+	{ TokenType::CHAR,				"CHAR"	},
 	{ TokenType::IDENTIFIER,		"IDENTIFIER" },
 	{ TokenType::T_STRING,			"T_STRING" },
 	{ TokenType::T_INT,				"T_INT" },

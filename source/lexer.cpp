@@ -9,6 +9,8 @@ Lexer::Lexer(const std::string &input)
 	m_source = input;
 }
 
+
+// TODO: Investigate prettying this up
 Token Lexer::char_handler()
 {
 	// Char has its own handler because it can be easily invalidated before parsing
@@ -27,6 +29,29 @@ Token Lexer::char_handler()
 		std::string str_value = std::string(1, m_source[m_position + 1]);
 		advance(3);
 		return Token(str_value, TokenType::CHAR, m_line, m_column - 2);
+	}
+	// Escape characters (\)
+	else if (m_source[m_position + 1] == '\\')
+	{
+		char next_char = m_source[m_position + 2];
+		switch (next_char)
+		{
+			case 't':
+				advance(4);
+				return Token("\t", TokenType::CHAR, m_line, m_column - 3);
+				break;
+			case 'n':
+				advance(4);
+				return Token("\n", TokenType::CHAR, m_line, m_column - 3);
+				break;
+			case '\\':
+				advance(4);
+				return Token("\\", TokenType::CHAR, m_line, m_column - 3);
+				break;
+			default:
+				token_diagnostics("Char is limited to one character.");
+				return Token("", TokenType::EOF_TOKEN, 0, 0);
+		}
 	}
 	else
 	{
@@ -208,17 +233,6 @@ bool Lexer::emit(const char value, std::vector<Token>& tokens)
 	tokens.push_back(literal_handler());
 	return true;
 }
-
-/*
-	ADDING NEW TOKENS
-	When a new token is added the following steps need to be taken as a checklist:
-	- Add token to enum class
-	- Add token to dictionary
-	- If token is a keyword, add it to that keyword
-	- Check the tokeniser function for a branch that uses the new token
-	- Make one if needed, make it guarded to avoid unnecessary complications
-	- Write tests for it that check tokenisation and syntax
-*/
 
 std::vector<Token> Lexer::tokenise()
 {
